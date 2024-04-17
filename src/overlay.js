@@ -10,10 +10,8 @@ export function handleOverlayEvent({
         const { line } = data
         if (!line) return
 
-        const lineType = line[0]
         const eventType = line[2]
         const message = line[4]
-        console.log(data);
 
         if (eventType === '2239'){
             // 进出队
@@ -22,11 +20,11 @@ export function handleOverlayEvent({
             const regxRemove = /被移出了小队。$/
 
             if (regxEnter.test(message)){
-                enterHandler(message.replace(regxEnter, ''))
+                enterHandler(removeServer(message.replace(regxEnter, '')))
             } else if (regxLeave.test(message)){
-                leaveHandler(message.replace(regxLeave, ''))
+                leaveHandler(removeServer(message.replace(regxLeave, '')))
             } else if (regxRemove.test(message)){
-                removeHandler(message.replace(regxRemove, ''))
+                removeHandler(removeServer(message.replace(regxRemove, '')))
             }
         }
 
@@ -39,4 +37,11 @@ export function handleOverlayEvent({
     })
 
     startOverlayEvents()
+}
+
+function removeServer(str){
+    const serverList = ['宇宙和音', '幻影群岛', '拉诺西亚', '晨曦王座', '沃仙曦染', '神意之地', '红玉海', '萌芽池']
+    serverList.forEach(server => {
+        str = str.replace(new RegExp(server+'$', 'g'), '')
+    })
 }
