@@ -60,10 +60,12 @@ const party = computed(() => {
     return result
 })
 
+window.fullGuys['party'] = party
+
 function add(item){
     if(!item) return
     if(!item.code){
-        const temporaryList = Object.values(props.idMap).filter(value => value.code[0] = 'T')
+        const temporaryList = Object.values(props.idMap).filter(value => value.code[0] === 'T')
         if(temporaryList.length){
             const maxCode = Math.max(...temporaryList.map(value => parseInt(value.code.slice(1))))
             item.code = `T${maxCode + 1}`

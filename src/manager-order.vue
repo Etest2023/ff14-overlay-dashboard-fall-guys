@@ -2,20 +2,22 @@
     <div class="warpper">
         <div v-if="!list || list.length === 0" class="empty"><el-empty description="没有数据" :image-size="100"/></div>
         <div class="person" v-for="item in list" :id="item.id">
-            <div class="name"><el-tag v-if="item.code" class="tag" size="small">{{ item.code }}</el-tag>{{ item.id }}</div>
+            <div class="name"><el-tag v-if="idMap[item.id].code" class="tag" size="small">{{ idMap[item.id].code }}</el-tag>{{ item.id }}</div>
             <el-segmented v-model="item.status" size="small" class="segmented" :class="[clasMap[item.status]]" :options="options"/>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-
 const props = defineProps({
     list: {
         type: Array,
         default: () => []
-    }
+    },
+    idMap: {
+        type: Object,
+        default: () => ({})
+    },
 })
 
 const clasMap = {

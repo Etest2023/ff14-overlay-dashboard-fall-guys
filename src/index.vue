@@ -29,7 +29,7 @@
             <el-main class="main">
                 <ManagerId v-show="activeMenu === 0" :list="partyList" @setList="setPartyList"/>
                 <ManagerParty v-show="activeMenu === 1" :idMap="partyMap" :realMap="realtimeParty" @add="addPartner" @del="delPartner"/>
-                <ManagerOrder v-show="activeMenu === 2" :list="filteredPartyList"/>
+                <ManagerOrder v-show="activeMenu === 2" :idMap="partyMap" :list="filteredPartyList"/>
             </el-main>
         </el-container>
     </el-container>
@@ -58,7 +58,7 @@ const onChangeMenu = index => activeMenu.value = parseInt(index)
 const activeFilter = ref('全部')
 const filterOptions = ref(['全部', '空闲', '游戏中'])
 
-// 名单表
+// 名单表（填表，表可能错）
 const partyList = ref([])
 const setPartyList = list => partyList.value = list
 const partyMap = computed(() => {
@@ -69,7 +69,7 @@ const partyMap = computed(() => {
     return map
 })
 
-// 组队信息
+// 组队信息（实时，人可能多）
 const realtimeParty = ref({})
 const filteredPartyList = computed(() => {
     const filter = activeFilter.value
@@ -80,6 +80,11 @@ const filteredPartyList = computed(() => {
         return list.filter(item => item.status === filter)
     }
 })
+
+window.fallGuys = {
+    partyList,
+    realtimeParty,
+}
 
 function addPartner({id, code}){
     partyList.value.push({
@@ -95,7 +100,6 @@ function delPartner({id}){
 
 handleOverlayEvent({
     enterHandler(id){
-        console.log('enterHandler', id);
         const item = realtimeParty.value[id]
         if(item) item.status = '组队中'
         else realtimeParty.value[id] = { id, code: '', status: '组队中' }
