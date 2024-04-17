@@ -9,7 +9,6 @@ export function handleOverlayEvent({
     addOverlayListener('LogLine', (data) => {
         const { line } = data
         if (!line) return
-
         const eventType = line[2]
         const message = line[4]
 
@@ -44,4 +43,5 @@ function removeServer(str){
     serverList.forEach(server => {
         str = str.replace(new RegExp(server+'$', 'g'), '')
     })
+    return str
 }

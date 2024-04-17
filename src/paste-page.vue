@@ -21,7 +21,7 @@ function handlePaste(e) {
         let customStr = matches[2]
         if(customStr[0] === '<') customStr = domParser.parseFromString(customStr, 'text/html').body.textContent;
         if(customStr) {
-            const match =customStr.match(/^[a-zA-Z0-9\u4e00-\u9fa5]+/)
+            const match =customStr.match(/^[a-zA-Z0-9\u4e00-\u9fa5·]+/)
             if(match) customStr = match[0]
             result.push({ code, id: customStr })
         }

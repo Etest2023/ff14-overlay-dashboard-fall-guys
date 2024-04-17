@@ -44,9 +44,9 @@ const party = computed(() => {
         if(!code && !props.idMap[id]) return result['陌生ID'].push({ id, code: '' })
 
         if(value.status === '组队中'){
-            result['已入队'].push({ id, code })
+            result['已入队'].push({ id, code: props.idMap[id].code })
         }else{
-            result['未入队'].push({ id, code })
+            result['未入队'].push({ id, code: props.idMap[id].code })
         }
     })
 
