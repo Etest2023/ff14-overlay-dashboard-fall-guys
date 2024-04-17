@@ -57,10 +57,9 @@ const party = computed(() => {
         result['未入队'].push({ id, code })
     })
 
+    window.fullGuys['party'] = result
     return result
 })
-
-window.fullGuys['party'] = party
 
 function add(item){
     if(!item) return
