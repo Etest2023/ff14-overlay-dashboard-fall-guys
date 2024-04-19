@@ -1,15 +1,29 @@
 <template>
     <div class="warpper">
         <el-anchor class="anchor" :offset="0" direction="horizontal" :container="scroller">
-            <el-anchor-link v-for="(value, key) in party" :href="`#${key}`">{{ key }}</el-anchor-link>
+            <el-anchor-link v-for="(value, key) in party" :href="`#${key}`">{{
+                key
+            }}</el-anchor-link>
         </el-anchor>
         <div class="scroller" ref="scroller">
             <div v-for="(list, key) in party" :id="key">
                 <p class="title">{{ key }}</p>
-                <div class="id" v-for="item in list">
-                    <div><el-tag v-if="item.code" class="tag" size="small">{{ item.code }}</el-tag>{{ item.id }}</div>
-                    <el-button v-if="key === '陌生ID'" type="primary" size="small" @click="add(item)">加入</el-button>
-                    <el-button v-if="key === '未入队'" type="danger" size="small" @click="del(item)">删除</el-button>
+                <div class="id" v-for="(item, index) in list">
+                    <div class="index">{{ index + 1 }}.</div>
+                    <div class="name">
+                        <el-tag v-if="item.code" class="tag" size="small">{{ item.code }}</el-tag
+                        >{{ item.id }}
+                    </div>
+                    <el-button
+                        v-if="key === '陌生ID'"
+                        type="primary"
+                        size="small"
+                        @click="add(item)"
+                        >加入</el-button
+                    >
+                    <el-button v-if="key === '未入队'" type="danger" size="small" @click="del(item)"
+                        >删除</el-button
+                    >
                 </div>
             </div>
         </div>
@@ -17,7 +31,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed } from 'vue'
 import { ref } from 'vue'
 const scroller = ref(null)
 const props = defineProps({
@@ -34,48 +48,40 @@ const emit = defineEmits(['add', 'del'])
 
 const party = computed(() => {
     const result = {
-        '陌生ID': [],
-        '未入队': [],
-        '已入队': [],
+        未入队: [],
+        已入队: [],
+        陌生ID: []
     }
-
-    Object.values(props.realMap).forEach(value => {
-        const {id, code} = value
-        if(!code && !props.idMap[id]) return result['陌生ID'].push({ id, code: '' })
-
-        if(value.status === '组队中'){
-            result['已入队'].push({ id, code: props.idMap[id].code })
-        }else{
-            result['未入队'].push({ id, code: props.idMap[id].code })
-        }
-    })
-
+    // 先处理名单内的，名单有顺序
     Object.values(props.idMap).forEach(value => {
-        const {id, code} = value
-        if(props.realMap[id] && props.realMap[id].status === '组队中') return
-        if(result['未入队'].find(item => item.id === id)) return
-        result['未入队'].push({ id, code })
+        const { id, code } = value
+        if (props.realMap[id] && props.realMap[id].status === '组队中') result['已入队'].push(value)
+        else result['未入队'].push(value)
+    })
+    // 再处理陌生的
+    Object.values(props.realMap).forEach(value => {
+        const { id, code } = value
+        if (!code && !props.idMap[id]) return result['陌生ID'].push({ id, code: '' })
     })
 
     return result
 })
-window.fallGuys['party'] = party
 
-function add(item){
-    if(!item) return
-    if(!item.code){
+function add(item) {
+    if (!item) return
+    if (!item.code) {
         const temporaryList = Object.values(props.idMap).filter(value => value.code[0] === 'T')
-        if(temporaryList.length){
+        if (temporaryList.length) {
             const maxCode = Math.max(...temporaryList.map(value => parseInt(value.code.slice(1))))
             item.code = `T${maxCode + 1}`
-        }else{
+        } else {
             item.code = 'T1'
         }
     }
     emit('add', item)
 }
 
-function del(item){
+function del(item) {
     emit('del', item)
 }
 </script>
@@ -106,6 +112,11 @@ function del(item){
     &:hover{
         background-color #f5f5f5
     }
+.index
+    flex 0 0 auto
+    min-width 24px
+.name
+    flex: 1
 .tag
     margin-right 4px
     padding 0 4px

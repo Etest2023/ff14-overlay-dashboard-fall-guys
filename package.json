@@ -1,28 +1,36 @@
 {
-  "name": "ff14-overlay-dashboard-fall-guys",
-  "version": "0.0.0",
-  "private": true,
-  "description": "行车记录仪",
-  "main": "index.js",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "@vitejs/plugin-legacy": "^4.1.1",
-    "@vitejs/plugin-vue": "^4.2.3",
-    "stylus": "^0.59.0",
-    "unplugin-auto-import": "^0.17.5",
-    "unplugin-vue-components": "^0.26.0",
-    "terser": "^5.30.3",
-    "vite": "^4.4.9"
-  },
-  "dependencies": {
-    "@element-plus/icons-vue": "^2.3.1",
-    "element-plus": "^2.7.0",
-    "vue": "^3.3.4"
-  }
+    "name": "ff14-overlay-dashboard-fall-guys",
+    "version": "0.0.0",
+    "private": true,
+    "description": "行车记录仪",
+    "main": "index.js",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "@vitejs/plugin-legacy": "^4.1.1",
+        "@vitejs/plugin-vue": "^4.2.3",
+        "stylus": "^0.59.0",
+        "unplugin-auto-import": "^0.17.5",
+        "unplugin-vue-components": "^0.26.0",
+        "terser": "^5.30.3",
+        "vite": "^4.4.9"
+    },
+    "dependencies": {
+        "@element-plus/icons-vue": "^2.3.1",
+        "element-plus": "^2.7.0",
+        "vue": "^3.3.4"
+    },
+    "prettier": {
+        "semi": false,
+        "singleQuote": true,
+        "trailingComma": "none",
+        "printWidth": 100,
+        "arrowParens": "avoid",
+        "tabWidth": 4
+    }
 }
