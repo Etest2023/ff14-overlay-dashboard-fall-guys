@@ -12,12 +12,26 @@
                 <el-menu-item class="menu-item" index="2">
                     <el-icon><Finished /></el-icon>
                 </el-menu-item>
+                <div
+                    class="toggle"
+                    :class="{ collapsed: !rightVisible }"
+                    @click="rightVisible = !rightVisible"
+                >
+                    <el-icon class="icon"><DArrowLeft /></el-icon>
+                </div>
             </el-menu>
         </el-aside>
-        <el-container>
+        <el-container class="container" v-show="rightVisible">
             <el-header class="header">
                 <el-row justify="space-between" align="middle">
                     <div class="title">{{ menuList[activeMenu] }}</div>
+                    <div class="tips" v-if="activeMenu === 2">
+                        距上次解散移出人数：<span
+                            class="count"
+                            :class="{ 'text-danger': removeCount > 7 }"
+                            >{{ removeCount }}</span
+                        >
+                    </div>
                 </el-row>
             </el-header>
             <el-main class="main">
@@ -41,7 +55,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { Setting, Histogram, Finished } from '@element-plus/icons-vue'
+import { Setting, Histogram, Finished, DArrowLeft } from '@element-plus/icons-vue'
 
 import { handleOverlayEvent } from './overlay'
 import ManagerId from './manager-id.vue'
@@ -70,11 +84,8 @@ const partyMap = computed(() => {
 // 组队信息（实时，人可能多）
 const realtimeParty = ref({})
 const realtimePartyList = computed(() => Object.values(realtimeParty.value))
-
-window.fallGuys = {
-    partyList,
-    realtimeParty
-}
+const removeCount = ref(0)
+const rightVisible = ref(true)
 
 function addPartner({ id, code }) {
     partyList.value.push({
@@ -108,10 +119,12 @@ handleOverlayEvent({
         if (item) item.status = '空闲'
     },
     removeHandler(id) {
+        removeCount.value++
         const item = realtimeParty.value[id]
         if (item) item.status = '游戏中'
     },
     clearHandler() {
+        removeCount.value = 0
         Object.values(realtimeParty.value).forEach(item => {
             if (item.status === '组队中') {
                 item.status = '空闲'
@@ -130,18 +143,18 @@ body
     height 100vh
     color #333
     text-shadow none
-    background-color rgba(255, 255, 255, 0.9)
 .ct,
 .aside,
 .menu
     height 100%
-
 .menu
     width 100%
 .menu-item
     width 100%
     display flex
     justify-content center
+.container
+    background-color rgba(255, 255, 255, 0.9)
 .header
     padding 8px
     height 40px
@@ -154,6 +167,12 @@ body
     padding 0 10px
 .title
     flex: 1
+.tips
+    display flex
+    align-items center
+    font-size 12px
+    .count
+        font-size 14px
 .rankBy
     display flex
     align-items center
@@ -162,4 +181,21 @@ body
         flex: 0 0 auto
         font-size 12px
         margin-right 4px
+.text-danger
+    color #f5222d
+.toggle
+    position absolute
+    bottom 0
+    left 0
+    right 0
+    height 56px
+    display flex
+    justify-content center
+    align-items center
+    cursor pointer
+    .icon
+        transition all 0.3s ease-in-out
+.collapsed
+    .icon
+        transform rotate(180deg)
 </style>
