@@ -2,7 +2,7 @@
     <PastePage v-if="isPage" />
     <el-container v-else class="ct">
         <el-aside class="aside" width="40px">
-            <el-menu default-active="0" class="menu" collapse @select="onChangeMenu">
+            <el-menu :default-active="activeMenu" class="menu" collapse @select="onChangeMenu">
                 <el-menu-item class="menu-item" index="0">
                     <el-icon><Setting /></el-icon>
                 </el-menu-item>
@@ -25,7 +25,7 @@
             <el-header class="header">
                 <el-row justify="space-between" align="middle">
                     <div class="title">{{ menuList[activeMenu] }}</div>
-                    <div class="tips" v-if="activeMenu === 2">
+                    <div class="tips" v-if="activeMenu === '2'">
                         距上次解散移出人数：<span
                             class="count"
                             :class="{ 'text-danger': removeCount > 7 }"
@@ -35,18 +35,18 @@
                 </el-row>
             </el-header>
             <el-main class="main">
-                <ManagerId v-show="activeMenu === 0" :list="partyList" @setList="setPartyList" />
+                <ManagerId v-show="activeMenu === '0'" :list="partyList" @setList="setPartyList" />
                 <ManagerParty
-                    v-show="activeMenu === 1"
+                    v-show="activeMenu === '1'"
                     :idMap="partyMap"
                     :realMap="realtimeParty"
                     @add="addPartner"
                     @del="delPartner"
                 />
                 <ManagerOrder
-                    v-show="activeMenu === 2"
-                    :idMap="partyMap"
+                    v-show="activeMenu === '2'"
                     :list="realtimePartyList"
+                    :listAll="realtimePartyListComposePartyList"
                 />
             </el-main>
         </el-container>
@@ -67,12 +67,15 @@ import PastePage from './paste-page.vue'
 const isPage = location.search.includes('paste')
 
 const menuList = ref(['名单管理', '组队信息', '跟车顺序'])
-const activeMenu = ref(0)
-const onChangeMenu = index => (activeMenu.value = parseInt(index))
+const activeMenu = ref('0')
+const onChangeMenu = index => (activeMenu.value = index)
 
 // 名单表（填表，表可能错）
 const partyList = ref([])
-const setPartyList = list => (partyList.value = list)
+const setPartyList = list => {
+    partyList.value = list
+    if(list && list.length) activeMenu.value = '2'
+}
 const partyMap = computed(() => {
     const map = {}
     partyList.value.forEach(item => {
@@ -84,6 +87,16 @@ const partyMap = computed(() => {
 // 组队信息（实时，人可能多）
 const realtimeParty = ref({})
 const realtimePartyList = computed(() => Object.values(realtimeParty.value))
+const realtimePartyListComposePartyList = computed(() => {
+    const list = partyList.value.slice()
+    Object.values(realtimeParty.value).forEach(item => {
+        const foundIndex = partyList.value.findIndex(p => p.id === item.id)
+        if (foundIndex > -1) list.splice(foundIndex, 1, item)
+        else list.push(item)
+    })
+    return list
+})
+
 const removeCount = ref(0)
 const rightVisible = ref(true)
 

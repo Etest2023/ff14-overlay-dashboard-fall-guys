@@ -1,6 +1,6 @@
 <template>
     <div class="warpper">
-        <div v-if="!list || list.length === 0" class="empty">
+        <div v-if="!listAll || listAll.length === 0" class="empty">
             <el-empty description="没有数据" :image-size="100" />
         </div>
         <template v-else>
@@ -24,16 +24,17 @@
                 <div class="person" v-for="(item, index) in filteredList" :id="item.id">
                     <div class="name">
                         <div class="index">{{ index + 1 }}.</div>
-                        <el-tag v-if="idMap[item.id] && idMap[item.id].code" class="tag" size="small">{{
-                            idMap[item.id].code
+                        <el-tag v-if="item && item.code" class="tag" size="small">{{
+                            item.code
                         }}</el-tag>
-                        {{ item.id }}
+                        <span class="id" :class="{'grey': !item.status}">{{ item.id }}</span>
                         <div class="toolbar">
                             <div class="item" @click.stop="copy(item.id)"><el-icon><DocumentCopy /></el-icon>复制ID</div>
                             <div class="item" @click.stop="copy(`${item.code} ${item.id}`)"><el-icon><CopyDocument /></el-icon>复制编号ID</div>
                         </div>
                     </div>
                     <el-segmented
+                        v-if="item.status"
                         v-model="item.status"
                         size="small"
                         class="segmented"
@@ -56,10 +57,10 @@ const props = defineProps({
         type: Array,
         default: () => []
     },
-    idMap: {
-        type: Object,
-        default: () => ({})
-    }
+    listAll: {
+        type: Array,
+        default: () => []
+    },
 })
 
 const clasMap = {
@@ -76,10 +77,14 @@ const rankBy = ref('code')
 const filteredList = computed(() => {
     const filter = activeFilter.value
     let res = []
+    let list = rankBy.value === 'code'? props.listAll : props.list
+
     if (filter === '全部') {
-        res = props.list
+        res = list
+    } else if (filter === '游戏中') {
+        res = list.filter(item => item.status === filter)
     } else {
-        res = props.list.filter(item => item.status === filter)
+        res = list.filter(item => item.status === filter || !item.status)
     }
 
     if (rankBy.value === 'code') {
@@ -158,6 +163,8 @@ function copy(text) {
     overflow hidden
     text-overflow ellipsis
     white-space nowrap
+    .grey
+        color #aaa
 .tag
     margin-right 2px
     vertical-align middle
