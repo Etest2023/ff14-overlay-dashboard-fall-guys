@@ -29,8 +29,10 @@
                         }}</el-tag>
                         <span class="id" :class="{'grey': !item.status}">{{ item.id }}</span>
                         <div class="toolbar">
-                            <div class="item" @click.stop="copy(item.id)"><el-icon><DocumentCopy /></el-icon>复制ID</div>
-                            <div class="item" @click.stop="copy(`${item.code} ${item.id}`)"><el-icon><CopyDocument /></el-icon>复制编号ID</div>
+                            <el-button class="item" type="text" :disabled="!item.status" @click.stop="gotoDetail(item)"><el-icon><Timer /></el-icon></el-button>
+                            <div class="item" @click.stop="copy(item.id)"><el-icon><DocumentCopy /></el-icon>ID</div>
+                            <div class="item" @click.stop="copy(`${item.code} ${item.id}`)"><el-icon><DocumentCopy /></el-icon>编号ID</div>
+                            <div class="item" @click.stop="say(item)">TTS</div>
                         </div>
                     </div>
                     <el-segmented
@@ -42,6 +44,9 @@
                         :options="options"
                     />
                 </div>
+                <div class="clear-ct">
+                    <el-button type="danger" size="small" @click.stop="emit('clear')">清空队伍</el-button>
+                </div>
             </div>
         </template>
     </div>
@@ -49,8 +54,11 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { CopyDocument, DocumentCopy } from '@element-plus/icons-vue'
+import { Timer, DocumentCopy } from '@element-plus/icons-vue'
 import { sortByCode } from './common'
+import { cactbotSay } from './overlay';
+
+const emit = defineEmits(['clear', 'gotoDetail'])
 
 const props = defineProps({
     list: {
@@ -93,6 +101,14 @@ const filteredList = computed(() => {
     return res
 })
 
+function say(item) {
+    if(item.status === '组队中'){
+        cactbotSay(`下一位：${item.id}`)
+    }else{
+        cactbotSay(`由请${item.id}进队`)
+    }
+}
+
 function copy(text) {
     const input = document.createElement('input')
     input.value = text
@@ -100,6 +116,10 @@ function copy(text) {
     input.select()
     document.execCommand('copy')
     document.body.removeChild(input)
+}
+
+function gotoDetail(id) {
+    emit('gotoDetail', id)
 }
 </script>
 
@@ -144,6 +164,7 @@ function copy(text) {
         display flex
         align-items center
         cursor pointer
+        height 100%
         &:last-of-type
             margin-right 0
         &:hover
@@ -183,4 +204,7 @@ function copy(text) {
     &::v-deep(.el-segmented__item-selected)
         color #fff
         background-color #ff0000
+.clear-ct
+    display flex
+    margin-top 10px
 </style>

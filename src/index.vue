@@ -47,7 +47,11 @@
                     v-show="activeMenu === '2'"
                     :list="realtimePartyList"
                     :listAll="realtimePartyListComposePartyList"
+                    @clear="clearRealtimeParty"
+                    @gotoDetail="gotoDetail"
                 />
+                <Detail :data="detailData"
+                    v-show="activeMenu === '3'"/>
             </el-main>
         </el-container>
     </el-container>
@@ -61,12 +65,13 @@ import { handleOverlayEvent } from './overlay'
 import ManagerId from './manager-id.vue'
 import ManagerParty from './manager-party.vue'
 import ManagerOrder from './manager-order.vue'
+import Detail from './detail.vue'
 import PastePage from './paste-page.vue'
 
 // 是否是粘贴页面
 const isPage = location.search.includes('paste')
 
-const menuList = ref(['名单管理', '组队信息', '跟车顺序'])
+const menuList = ref(['名单管理', '组队信息', '跟车顺序', '历史记录'])
 const activeMenu = ref('0')
 const onChangeMenu = index => (activeMenu.value = index)
 
@@ -74,7 +79,7 @@ const onChangeMenu = index => (activeMenu.value = index)
 const partyList = ref([])
 const setPartyList = list => {
     partyList.value = list
-    if(list && list.length) activeMenu.value = '2'
+    if (list && list.length) activeMenu.value = '2'
 }
 const partyMap = computed(() => {
     const map = {}
@@ -96,6 +101,9 @@ const realtimePartyListComposePartyList = computed(() => {
     })
     return list
 })
+function clearRealtimeParty() {
+    realtimeParty.value = {}
+}
 
 const removeCount = ref(0)
 const rightVisible = ref(true)
@@ -112,12 +120,27 @@ function delPartner({ id }) {
     if (index !== -1) partyList.value.splice(index, 1)
 }
 
+const detailData = ref({})
+function gotoDetail(item) {
+    detailData.value = item
+    activeMenu.value = '3'
+}
+
 handleOverlayEvent({
-    enterHandler(id) {
+    enterHandler(id, message) {
         const item = realtimeParty.value[id]
-        if (item) item.status = '组队中'
-        else {
-            const realtimePartner = { id, status: '组队中' }
+        if (item) {
+            item.status = '组队中'
+            item.records.push({
+                time: Date.now(),
+                message
+            })
+        } else {
+            const realtimePartner = {
+                id,
+                status: '组队中',
+                records: [{ time: Date.now(), message }]
+            }
             Object.defineProperty(realtimePartner, 'code', {
                 get: () => {
                     const item = partyMap.value[id]
@@ -127,20 +150,33 @@ handleOverlayEvent({
             realtimeParty.value[id] = realtimePartner
         }
     },
-    leaveHandler(id) {
+    leaveHandler(id, message) {
         const item = realtimeParty.value[id]
-        if (item) item.status = '空闲'
+        if (item) {
+            item.status = '空闲'
+            item.records.push({
+                time: Date.now(),
+                message
+            })
+        }
     },
-    removeHandler(id) {
+    removeHandler(id, message) {
         removeCount.value++
         const item = realtimeParty.value[id]
-        if (item) item.status = '游戏中'
+        if (item) {
+            item.status = '游戏中'
+            item.records.push({
+                time: Date.now(),
+                message
+            })
+        }
     },
-    clearHandler() {
+    clearHandler(message) {
         removeCount.value = 0
         Object.values(realtimeParty.value).forEach(item => {
             if (item.status === '组队中') {
                 item.status = '空闲'
+                item.records.push({ time: Date.now(), message })
             }
         })
     }

@@ -1,4 +1,4 @@
-const { addOverlayListener, startOverlayEvents } = window
+const { addOverlayListener, startOverlayEvents, callOverlayHandler } = window
 
 export function handleOverlayEvent({ enterHandler, leaveHandler, removeHandler, clearHandler }) {
     addOverlayListener('LogLine', data => {
@@ -14,18 +14,18 @@ export function handleOverlayEvent({ enterHandler, leaveHandler, removeHandler, 
             const regxRemove = /被移出了小队。$/
 
             if (regxEnter.test(message)) {
-                enterHandler(removeServer(message.replace(regxEnter, '')))
+                enterHandler(removeServer(message.replace(regxEnter, '')), message)
             } else if (regxLeave.test(message)) {
-                leaveHandler(removeServer(message.replace(regxLeave, '')))
+                leaveHandler(removeServer(message.replace(regxLeave, '')), message)
             } else if (regxRemove.test(message)) {
-                removeHandler(removeServer(message.replace(regxRemove, '')))
+                removeHandler(removeServer(message.replace(regxRemove, '')), message)
             }
         }
 
         if (eventType === '0039') {
             // 开关招募
             if (message === '解散了队员招募用的团队。') {
-                clearHandler()
+                clearHandler(message)
             }
         }
     })
@@ -48,4 +48,12 @@ function removeServer(str) {
         str = str.replace(new RegExp(server + '$', 'g'), '')
     })
     return str
+}
+
+export function cactbotSay(text) {
+    if (!text) return
+    callOverlayHandler({
+        text,
+        call: 'cactbotSay'
+    })
 }
